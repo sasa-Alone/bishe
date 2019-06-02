@@ -27,16 +27,28 @@ class ZiruSpider(scrapy.Spider):
         'User-Agent': user_agent[random.randint(0, 5)]
     }
     def start_requests(self):
-        url = 'http://hz.ziroom.com/z/nl/z3.html'
-        yield scrapy.Request(url=url, headers=self.headers, callback=self.parse,)
+        urls = [
+            'http://hz.ziroom.com/z/nl/z3.html',
+               'http://sh.ziroom.com/z/nl/z3.html',
+               # 'http://www.ziroom.com/z/nl/z3.html',
+               # 'http://sz.ziroom.com/z/nl/z3.html',
+               # 'http://nj.ziroom.com/z/nl/z3.html',
+               # 'http://cd.ziroom.com/z/nl/z3.html',
+               # 'http://wh.ziroom.com/z/nl/z3.html',
+               # 'http://gz.ziroom.com/z/nl/z3.html',
+               # 'http://tj.ziroom.com/z/nl/z3.html'
+               ]
+        for url in urls:
+            yield scrapy.Request(url=url, headers=self.headers, callback=self.parse,)
 
     def parse(self, response):
-        contents = requests.get(response.url, headers=self.headers)
-        contents.encoding = 'utf-8'
-        html = contents.text
-        content = bs4.BeautifulSoup(html, "lxml")
-        page = content.find('div', {'id': 'page'}).findAll('span')[1].text.strip()
-        pagesRange = int(re.findall(r"\d+\.?\d*", page)[0])
+        # contents = requests.get(response.url, headers=self.headers)
+        # contents.encoding = 'utf-8'
+        # html = contents.text
+        # content = bs4.BeautifulSoup(html, "lxml")
+        # page = content.find('div', {'id': 'page'}).findAll('span')[1].text.strip()
+        # pagesRange = int(re.findall(r"\d+\.?\d*", page)[0])
+        pagesRange = 5;
         for i in range(1, pagesRange):
             url = response.url + '?p={}'.format(str(i))
             # try:
@@ -59,13 +71,15 @@ class ZiruSpider(scrapy.Spider):
                 for special in specials:
                     item['special'].append(special.text.strip())
                 details = txt.find('div', {'class': 'detail'}).findAll('span')
-                item['area'] = details[0].text.strip()
+                # item['area'] = details[0].text.strip()
+                item['size'] = re.compile(r'\d+|\d+\.\d+').findall(details[0].text.strip())[0]
                 item['floor'] = details[1].text.strip()
-                item['model'] = details[2].text.strip()
+                item['model'] = re.compile(r'\d+').findall(details[2].text.strip())[0] # 目前只支持记录居室不记录厅
                 item['address'] = details[3].text.strip()
                 tags = txt.find('p', {'class': 'room_tags clearfix'}).findAll('span')
                 for tag in tags:
                     item['special'].append(tag.text.strip())
                 priceDetail = house.find('div', {'class': 'priceDetail'})
-                item['price'] = priceDetail.find('p', {'class': 'price'}).text.strip()
+                # price = re.compile(r'\d+').findall(priceDetail.find('p', {'class': 'price'}).text.strip())
+                item['price'] = random.randint(1000, 3000)
                 yield item

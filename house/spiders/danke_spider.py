@@ -4,6 +4,7 @@ import random
 
 import bs4
 import requests
+import re
 
 from house.items import HouseItem
 
@@ -27,13 +28,25 @@ class DankeSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-        url ='https://www.dankegongyu.com/room/hz'
-        yield scrapy.Request(url=url, headers=self.headers, callback=self.parse,)
+        urls = [
+            'https://www.dankegongyu.com/room/hz',
+            'https://www.dankegongyu.com/room/bj',
+            # 'https://www.dankegongyu.com/room/sz',
+            # 'https://www.dankegongyu.com/room/sh',
+            # 'https://www.dankegongyu.com/room/tj',
+            # 'https://www.dankegongyu.com/room/wh',
+            # 'https://www.dankegongyu.com/room/nj',
+            # 'https://www.dankegongyu.com/room/gz',
+            # 'https://www.dankegongyu.com/room/gs',
+            # 'https://www.dankegongyu.com/room/cd',
+        ]
+        for url in urls:
+            yield scrapy.Request(url=url, headers=self.headers, callback=self.parse,)
 
     def parse(self, response):
-        for i in range(1, 400):
+        for i in range(1, 2):
             url = response.url + '?page={}'.format(str(i))
-            print(url)
+            # print(url)
             # try:
             contents = requests.get(url, headers=self.headers)
             contents.encoding = 'utf-8'
@@ -50,15 +63,17 @@ class DankeSpider(scrapy.Spider):
                 item['link'] = temp.find('a')['href'] # 获取详情链接
                 item['address'] = temp.find('div',{'class':'r_lbx_cena'}).text.strip()
                 details = house.find('div',{'class':'r_lbx_cenb'}).text.split('|')
-                item['size']=details[0].strip()
+                item['size']=re.compile(r'\d+|\d+\.\d+').findall(details[0].strip())[0]
+                # print(details[0].strip())
                 item['floor']=details[1].strip()
-                item['model']=details[2].strip()
+                item['model']= re.compile(r'\d+').findall(details[2].strip())[0] # 目前只支持记录居室不记录厅
+                # print(item['model'])
                 item['type']=details[3].strip()[-1]+"租"
                 item['orientations']=details[3].strip().splitlines()[0].strip()
                 if house.find('div',{'class':'room_price'}):
-                    item['firstMonthPrice']=house.find('span',{'class':'ty_b'}).text.strip()
-                    item['price']=house.find('div',{'class':'room_price'}).find('em').text.strip()
+                    item['firstMonthPrice'] = re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())
+                    item['price']= re.compile(r'\d+').findall(house.find('div',{'class':'room_price'}).find('em').text.strip())
                 else:
-                    item['price']=house.find('span',{'class':'ty_b'}).text.strip()
+                    item['price']=re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())
                     item['firstMonthPrice']=item['price']
                 yield item
