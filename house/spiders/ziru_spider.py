@@ -65,8 +65,8 @@ class ZiruSpider(scrapy.Spider):
                 item['title'] = txt.find('h3').text.strip()  # 获取标题
                 item['link'] = txt.find('h3').find('a')['href']  # 获取详情链接
                 item['special'] = []
-                if txt.find('h3').find('span', {'class', 'shx_icon'}):
-                    item['special'].append('shxicon')
+                # if txt.find('h3').find('span', {'class', 'shx_icon'}):
+                #     item['special'].append('shxicon')
                 specials = txt.find('h4').findAll('span')
                 for special in specials:
                     item['special'].append(special.text.strip())
@@ -82,4 +82,8 @@ class ZiruSpider(scrapy.Spider):
                 priceDetail = house.find('div', {'class': 'priceDetail'})
                 # price = re.compile(r'\d+').findall(priceDetail.find('p', {'class': 'price'}).text.strip())
                 item['price'] = random.randint(1000, 3000)
+                if re.compile(r'/整/').findall(item['title']):
+                    item['type'] = '整租'
+                else:
+                    item['type'] = '合租'
                 yield item

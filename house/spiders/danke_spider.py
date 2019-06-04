@@ -70,10 +70,19 @@ class DankeSpider(scrapy.Spider):
                 # print(item['model'])
                 item['type']=details[3].strip()[-1]+"租"
                 item['orientations']=details[3].strip().splitlines()[0].strip()
-                if house.find('div',{'class':'room_price'}):
-                    item['firstMonthPrice'] = re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())
-                    item['price']= re.compile(r'\d+').findall(house.find('div',{'class':'room_price'}).find('em').text.strip())
+                tags = house.find('div', {'class': 'r_lbx_cenc'}).findAll('span')
+                print(tags)
+                item['special'] = []
+                if len(tags):
+                    for tag in tags:
+                        print(tag.text.strip())
+                        item['special'].append(tag.text.strip())
                 else:
-                    item['price']=re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())
+                    item['special'].append('暂无')
+                if house.find('div',{'class':'room_price'}):
+                    item['firstMonthPrice'] = re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())[0]
+                    item['price']= re.compile(r'\d+').findall(house.find('div',{'class':'room_price'}).find('em').text.strip())[0]
+                else:
+                    item['price']=re.compile(r'\d+').findall(house.find('span',{'class':'ty_b'}).text.strip())[0]
                     item['firstMonthPrice']=item['price']
                 yield item

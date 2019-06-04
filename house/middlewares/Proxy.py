@@ -6,8 +6,7 @@ import random
 from scrapy.conf import settings
 import logging
 
-logger = logging.getLogger('movie.middlewares.proxy')
-
+logger = logging.getLogger('house.middlewares.proxy')
 
 class StaticProxyMiddleWare(object):
     def process_request(self, request, spider):

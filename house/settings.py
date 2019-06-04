@@ -63,9 +63,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
-#    'scrapy.extensions.telnet.TelnetConsole': None,
-#}
+EXTENSIONS = {
+   'scrapy.extensions.telnet.TelnetConsole': None,
+    'house.extensions.corestats.CoreStats':300,
+}
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
@@ -102,6 +103,7 @@ PROXY_LIST = [
     "http://61.53.143.179:80"
 ]
 
+# MONGO_URI = 'mongodb://120.76.199.213:27017'
 MONGO_URI = 'mongodb://localhost:27017'
 MONGO_DATABASE = 'house'
-MONGO_TABLE = 'house_list'
+# MONGO_TABLE = 'house_list'

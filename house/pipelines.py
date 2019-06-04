@@ -11,9 +11,9 @@ import pymongo
 
 class MongoPipeline(object):
 
-    collection_name = 'house_exam2'
+    collection_name = 'house_exam5'
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri, mongo_db,):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
 
